@@ -1,21 +1,30 @@
-class WebpageControl():
-    def __init__(self) -> None:
+from abc import ABC, abstractmethod
+
+class WebpageControl(ABC):
+    @abstractmethod
+    def scrollUp(self):
         pass
 
-    def scrollUp():
+    @abstractmethod
+    def scrollDown(self):
         pass
 
-    def scrollDown():
+    @abstractmethod
+    def moveForward(self):
         pass
 
-    def moveForwar():
+    @abstractmethod
+    def moveBack(self):
         pass
-
-    def moveBack():
+    
+    @abstractmethod
+    def next(self):
         pass
-
-    def nextVideo():
+    
+    @abstractmethod
+    def prev(self):
         pass
-
-    def prevVideo():
+    
+    @abstractmethod
+    def pause(self):
         pass
