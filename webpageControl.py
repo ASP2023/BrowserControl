@@ -26,5 +26,5 @@ class WebpageControl(ABC):
         pass
     
     @abstractmethod
-    def pause(self):
+    def playOrPause(self):
         pass

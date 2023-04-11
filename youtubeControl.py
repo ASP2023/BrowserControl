@@ -1,9 +1,10 @@
 from webpageControl import WebpageControl
+from selenium.webdriver.common.by import By
 
 class YoutubeControl(WebpageControl):
     webdriver = None
 
-    def __init__(self, webdriver: webdriver) -> None:
+    def __init__(self, webdriver) -> None:
         self.webdriver = webdriver
 
     def scrollUp(self):
@@ -19,18 +20,22 @@ class YoutubeControl(WebpageControl):
         self.webdriver.back()
 
     def next(self):
-        nextButton = self.webdriver.find_element_by_class_name("ytp-next-button ytp-button")
-        if (nextButton):
+        try:
+            nextButton = self.webdriver.find_element(By.XPATH, "//a[@class='ytp-next-button ytp-button']")
             nextButton.click()
-        else:
+        except:
             print("nextButton not found")
 
     def prev(self):
-        prevButton = self.webdriver.find_element_by_class_name("ytp-prev-button ytp-button")
-        if (prevButton):
+        try:
+            prevButton = self.webdriver.find_element(By.XPATH, "//a[@class='ytp-prev-button ytp-button']")
             prevButton.click()
-        else:
-            print("nextButton not found")
+        except:
+            print("prevButton not found")
 
-    def pause(self):
-        pass
+    def playOrPause(self):
+        try:
+            playButton = self.webdriver.find_element(By.XPATH, "//button[contains(@class, 'ytp-play-button ytp-button')]")
+            playButton.click()
+        except:
+            print("playButton not found")

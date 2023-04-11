@@ -2,6 +2,8 @@ from selenium import webdriver
 from webpageControl import WebpageControl
 from youtubeControl import YoutubeControl
 
+PATH = "./chromedriver/chromedriver"
+
 class WebpageController():
 
     url: str = None
@@ -10,7 +12,8 @@ class WebpageController():
 
     def __init__(self, url: str) -> None:
         self.url = url
-        self.driver = webdriver.Chrome(url)
+        self.driver = webdriver.Chrome(PATH)
+        self.driver.get(url)
         self.webpageControl = YoutubeControl(self.driver)
 
     def palmMoveUp(self):
@@ -32,4 +35,4 @@ class WebpageController():
         self.webpageControl.next()
 
     def makeFist(self):
-        self.webpageControl.pause()
+        self.webpageControl.playOrPause()
