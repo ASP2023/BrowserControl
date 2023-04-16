@@ -23,7 +23,27 @@ class GestureRecognizer():
         self.MOVING_THRESHOLD = 50
         self.prev_landmarks = None
         self.cap = cv2.VideoCapture(0)
+        # category: ["None", "Closed_Fist", "Open_Palm", "Pointing_Up",
+        #            "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"]
+        # direction: ["None", "UP", "DOWN", "LEFT", "RIGHT"]
         self.gestures = {'category': None, 'direction': None}
+
+    def get_command(self):
+        gesture = self.gestures['category']
+        if gesture == 'Pointing_Up':
+            return 'w'
+        elif gesture == 'Pointing_Down':
+            return 's'
+        elif gesture == 'Thumb_Up':
+            return 'a'
+        elif gesture == 'Thumb_Down':
+            return 'd'
+        elif gesture == 'Closed_Fist':
+            return 'x'
+        elif gesture == 'Open_Palm':
+            return 'q'
+        elif gesture == 'Victory':
+            return 'e'
 
     def run(self):
         """
