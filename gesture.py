@@ -16,7 +16,7 @@ class GestureRecognizer():
         """
         base_options = python.BaseOptions(
             model_asset_path='gesture_recognizer.task')
-        options = vision.GestureRecognizerOptions(base_options=base_options)
+        options = vision.GestureRecognizerOptions(base_options=base_options,num_hands=2)
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
         self.direction = None
         self.continous_moving_cnt = 0
@@ -26,7 +26,7 @@ class GestureRecognizer():
         # category: ["None", "Closed_Fist", "Open_Palm", "Pointing_Up",
         #            "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"]
         # direction: ["None", "UP", "DOWN", "LEFT", "RIGHT"]
-        self.gestures = {'category': None, 'direction': None}
+        self.gestures = {'dual_hand': None,'hand':None}
 
     def get_command(self):
         gesture = self.gestures['category']
@@ -52,12 +52,12 @@ class GestureRecognizer():
         3. Visualize the result
         """
         ret, frame = self.cap.read()
+        self.h = frame.shape[0]
+        self.w = frame.shape[1]
         if not ret:
             return
         self.recog_result = self.recognize(frame)
         frame = self.visualize(frame, self.recog_result)
-        self.h = frame.shape[0]
-        self.w = frame.shape[1]
         cv2.imshow('Gesture Recognizer', frame)
         return
 
@@ -83,24 +83,45 @@ class GestureRecognizer():
         # Draw the recognized gesture on the frame
         if not recog_result.hand_landmarks:
             return frame
+        
         for landmark_list in recog_result.hand_landmarks:
             draw_landmarks(frame, landmark_list,
                            mp.solutions.hands.HAND_CONNECTIONS)
-        for ges in recog_result.gestures:
-            ges_name = ges[0].category_name
-            if ges_name != 'None':
-                self.gestures['category'] = ges_name
-                # put text on cv2 window
-                cv2.putText(frame, ges_name, (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-        self.update_direction(self.landmark_cvt_to_numpy(
-            recog_result.hand_landmarks))
-        self.prev_landmarks = self.landmark_cvt_to_numpy(
-            recog_result.hand_landmarks)
-        if self.direction != 'None':
-            self.gestures['direction'] = self.direction
-            cv2.putText(frame, self.direction, (10, 60),
+        if len(recog_result.handedness) == 2:
+            # if two hands are detected
+            if recog_result.handedness[0][0].category_name == 'Left':
+                left_hand_gesture = recog_result.gestures[recog_result.handedness[0][0].index]
+                right_hand_gesture = recog_result.gestures[recog_result.handedness[1][0].index]
+            else:
+                left_hand_gesture = recog_result.gestures[recog_result.handedness[1][0].index]
+                right_hand_gesture = recog_result.gestures[recog_result.handedness[0][0].index]
+            self.gestures['dual_hand'] = [left_hand_gesture[0].category_name, right_hand_gesture[0].category_name]
+            self.gestures['hand'] = None
+            cv2.putText(frame, left_hand_gesture[0].category_name, (10, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, right_hand_gesture[0].category_name, (self.w - 240, 40),    
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        else:
+            self.gestures['dual_hand'] = None
+            self.gestures['hand'] = recog_result.gestures[0][0].category_name
+            hand_gesture = recog_result.gestures[0]
+            cv2.putText(frame, hand_gesture[0].category_name, (10, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        # for ges in recog_result.gestures:
+        #     ges_name = ges[0].category_name
+        #     if ges_name != 'None':
+        #         self.gestures['category'] = ges_name
+        #         # put text on cv2 window
+        #         cv2.putText(frame, ges_name, (10, 30),
+        #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        # self.update_direction(self.landmark_cvt_to_numpy(
+        #     recog_result.hand_landmarks))
+        # self.prev_landmarks = self.landmark_cvt_to_numpy(
+        #     recog_result.hand_landmarks)
+        # if self.direction != 'None':
+        #     self.gestures['direction'] = self.direction
+        #     cv2.putText(frame, self.direction, (10, 60),
+        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         return frame
 
     def update_direction(self, landmarks):
