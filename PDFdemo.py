@@ -7,7 +7,15 @@ import cv2
 
 if __name__ == "__main__":
     print("hello")
-    controller = PDFPageControl('docs/GPT-4.pdf')
+    PATH = "./chromedriver/chromedriver"
+    driver = webdriver.Chrome(PATH)
+    # pdf_path = 'docs/gpt-4.pdf'
+    # url = pdf_path
+    # url = f'file:///{pdf_path}'
+    url = 'arxiv.org/pdf/2303.08774.pdf'
+    # url = "https://www.youtube.com"
+    driver.get(url)
+    controller = PDFPageControl(driver)
     gesture_recognizer = GestureRecognizer()
     while (True):
         gesture_recognizer.run()

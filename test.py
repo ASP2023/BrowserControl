@@ -13,9 +13,9 @@ if __name__ == "__main__":
         command = gesture_recognizer.get_command()
         # command = input("command:")
         print(command)
-        if ("w" == command):
+        if ("scroll_up" == command):
             controller.palmMoveDown()
-        elif ("s" == command):
+        elif ("scroll_down" == command):
             controller.palmMoveUp()
         elif ("a" == command):
             controller.palmMoveRight()
@@ -27,4 +27,5 @@ if __name__ == "__main__":
             controller.pointToRight()
         elif ("x" == command):
             controller.makeFist()
-        cv2.waitKey(1)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break

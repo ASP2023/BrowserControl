@@ -3,22 +3,6 @@ from abc import ABC, abstractmethod
 
 class AbstractWebpageControl(ABC):
     @abstractmethod
-    def slowScrollUp(self):
-        pass
-
-    @abstractmethod
-    def slowScrollDown(self):
-        pass
-
-    @abstractmethod
-    def quickSCrollUp(self):
-        self.scrollUp()
-
-    @abstractmethod
-    def quickScrollDown(self):
-        self.scrollDown()
-
-    @abstractmethod
     def scrollUp(self):
         pass
 
