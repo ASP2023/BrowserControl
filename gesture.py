@@ -31,13 +31,13 @@ class GestureRecognizer():
     def get_command(self):
         gesture = self.gestures['category']
         if gesture == 'Pointing_Up':
-            return 'w'
-        elif gesture == 'Pointing_Down':
-            return 's'
-        elif gesture == 'Thumb_Up':
             return 'a'
-        elif gesture == 'Thumb_Down':
+        elif gesture == 'Pointing_Down':
             return 'd'
+        elif gesture == 'Thumb_Up':
+            return 'w'
+        elif gesture == 'Thumb_Down':
+            return 's'
         elif gesture == 'Closed_Fist':
             return 'x'
         elif gesture == 'Open_Palm':
@@ -123,7 +123,7 @@ class GestureRecognizer():
                 return 'LEFT'
             else:
                 return 'RIGHT'
-        print(x_diff, y_diff)
+        # print(x_diff, y_diff)
         if abs(x_diff) > abs(y_diff):
             self.direction = diff_to_direction_x(x_diff)
         else:
