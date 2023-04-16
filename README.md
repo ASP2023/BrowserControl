@@ -26,17 +26,29 @@ gesture_recognizer.run()
 gestures = gesture_recognizer.gestures
 ```
 
-Here, gestures is a dictionary as: `{'category': 'Pointing_Up', 'direction': 'LEFT'}`
+If both hands are detected， the dual-hand gestures are represented as `gestures["dual_hand"] = [LEFT_HAND_GESTURE, RIGHT_HAND_GESTURE]`.
 
-`category` has 8 possible values: `["None",
+If only single hand are detected, the single-hand gesture is represented as `gestures["hand"] = [GESTURE]`
+
+Here, gestures has 8 possible string values: `["None",
       "Closed_Fist", "Open_Palm", "Pointing_Up", "Thumb_Down", "Thumb_Up",
       "Victory", "ILoveYou"]`.
 
-`direction` has 5 possible values: `["None","LEFT","RIGHT","DOWN","UP"]`.
+You can modify the function 
+```
+def get_command(self):
+    # your code
+```
 
+to transfer the gesture strings to selenium command.
 
 ## Demo
 
 ```
 python gesture.py
 ```
+
+
+## Acknowledgement
+
+[MediaPipe](https://github.com/google/mediapipe)
