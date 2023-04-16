@@ -13,29 +13,22 @@ class PDFPageControl(AbstractWebpageControl):
     def scrollDown(self):
         self.webdriver.execute_script("window.scrollBy(0,500)")
 
-    def moveForward(self):
-        self.webdriver.forward()
-
-    def moveBack(self):
-        self.webdriver.back()
-
-    def next(self):
-        try:
-            nextButton = self.webdriver.find_element(By.XPATH, "//a[@class='ytp-next-button ytp-button']")
-            nextButton.click()
-        except:
-            print("nextButton not found")
-
-    def prev(self):
-        try:
-            prevButton = self.webdriver.find_element(By.XPATH, "//a[@class='ytp-prev-button ytp-button']")
-            prevButton.click()
-        except:
-            print("prevButton not found")
-
-    def playOrPause(self):
-        try:
-            playButton = self.webdriver.find_element(By.XPATH, "//button[contains(@class, 'ytp-play-button ytp-button')]")
-            playButton.click()
-        except:
-            print("playButton not found")
+    def quickSCrollUp(self):
+        self.webdriver.execute_script("window.scrollBy(0,-1000)")
+    
+    def quickScrollDown(self):
+        self.webdriver.execute_script("window.scrollBy(0,1000)")
+        
+    def slowScrollUp(self):
+        self.webdriver.execute_script("window.scrollBy(0,-100)")
+    
+    def slowScrollDown(self):
+        self.webdriver.execute_script("window.scrollBy(0,100)")
+    
+    def zoomIn(self):
+        self.webdriver.execute_script("document.body.style.zoom = '150%'")
+    
+    def zoomOut(self):
+        self.webdriver.execute_script("document.body.style.zoom = '50%'")
+    
+    

@@ -48,10 +48,26 @@ class GestureRecognizer():
                 return 'scroll_up'
             elif left_gesture == 'Pointing_Up' and right_gesture == 'Thumb_Down':
                 return 'scroll_down'
+            
+            if left_gesture == 'ILoveYou' and right_gesture == 'Thumb_Up':
+                return 'slow_scroll_up'
+            if left_gesture == 'ILoveYou' and right_gesture == 'Thumb_Down':
+                return 'slow_scroll_down'
+            
             # if both hands open palm = pause
             if left_gesture == 'Open_Palm' and right_gesture == 'Open_Palm':
                 return 'pause'
             
+            # if both hands pointing up = zoom in
+            if left_gesture == 'Pointing_Up' and right_gesture == 'Pointing_Up':
+                return 'zoom_in'
+            
+            # if both hands colsed fist = zoom out
+            if left_gesture == 'Closed_Fist' and right_gesture == 'Closed_Fist':
+                return 'zoom_out'
+            
+            
+            return None
 
     def run(self):
         """
