@@ -25,10 +25,12 @@ class GestureRecognizer():
         self.cap = cv2.VideoCapture(0)
         # category: ["None", "Closed_Fist", "Open_Palm", "Pointing_Up",
         #            "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"]
-        # direction: ["None", "UP", "DOWN", "LEFT", "RIGHT"]
         self.gestures = {'dual_hand': None,'hand':None}
 
     def get_command(self):
+        # gesture is saved by string in one of the following 8 strings: 
+        #       ["None", "Closed_Fist", "Open_Palm", "Pointing_Up",
+        #            "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"]
         if self.gestures['dual_hand'] is None:
             return None
         else:
