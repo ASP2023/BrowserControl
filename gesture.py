@@ -29,21 +29,27 @@ class GestureRecognizer():
         self.gestures = {'dual_hand': None,'hand':None}
 
     def get_command(self):
-        gesture = self.gestures['category']
-        if gesture == 'Pointing_Up':
-            return 'a'
-        elif gesture == 'Pointing_Down':
-            return 'd'
-        elif gesture == 'Thumb_Up':
-            return 'w'
-        elif gesture == 'Thumb_Down':
-            return 's'
-        elif gesture == 'Closed_Fist':
-            return 'x'
-        elif gesture == 'Open_Palm':
-            return 'q'
-        elif gesture == 'Victory':
-            return 'e'
+        if self.gestures['dual_hand'] is None:
+            return None
+        else:
+            left_gesture  = self.gestures['dual_hand'][0]
+            right_gesture = self.gestures['dual_hand'][1]
+            # left closed_fist, right thumb_up = quick scroll up
+            # left closed_fist, right thumb_down = quick scroll down
+            if left_gesture == 'Closed_Fist' and right_gesture == 'Thumb_Up':
+                return 'quick_scroll_up'
+            elif left_gesture == 'Closed_Fist' and right_gesture == 'Thumb_Down':
+                return 'quick_scroll_down'
+            # left pointing_up, right thumb_up = scroll up
+            # left pointing_up, right thumb_down = scroll down
+            if left_gesture == 'Pointing_Up' and right_gesture == 'Thumb_Up':
+                return 'scroll_up'
+            elif left_gesture == 'Pointing_Up' and right_gesture == 'Thumb_Down':
+                return 'scroll_down'
+            # if both hands open palm = pause
+            if left_gesture == 'Open_Palm' and right_gesture == 'Open_Palm':
+                return 'pause'
+            
 
     def run(self):
         """
@@ -86,7 +92,7 @@ class GestureRecognizer():
         
         for landmark_list in recog_result.hand_landmarks:
             draw_landmarks(frame, landmark_list,
-                           mp.solutions.hands.HAND_CONNECTIONS)
+                    mp.solutions.hands.HAND_CONNECTIONS)
         if len(recog_result.handedness) == 2:
             # if two hands are detected
             if recog_result.handedness[0][0].category_name == 'Left':
