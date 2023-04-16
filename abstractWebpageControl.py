@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class WebpageControl(ABC):
+class AbstractWebpageControl(ABC):
     @abstractmethod
     def scrollUp(self):
         pass

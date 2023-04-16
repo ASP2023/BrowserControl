@@ -1,20 +1,16 @@
 from selenium import webdriver
-from webpageControl import WebpageControl
-from youtubeControl import YoutubeControl
-
-PATH = "./chromedriver/chromedriver"
+from abstractWebpageControl import AbstractWebpageControl
+from youtubeWebpageControl import YoutubeWebpageControl
+from webpageControlFactory import WebageControlFactory
 
 class WebpageController():
 
     url: str = None
-    driver = None
-    webpageControl: WebpageControl = None
+    webpageControl: AbstractWebpageControl = None
 
     def __init__(self, url: str) -> None:
         self.url = url
-        self.driver = webdriver.Chrome(PATH)
-        self.driver.get(url)
-        self.webpageControl = YoutubeControl(self.driver)
+        self.webpageControl = WebageControlFactory.create(url)
 
     def palmMoveUp(self):
         self.webpageControl.scrollDown()

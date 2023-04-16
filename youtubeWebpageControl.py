@@ -1,7 +1,7 @@
-from webpageControl import WebpageControl
+from abstractWebpageControl import AbstractWebpageControl
 from selenium.webdriver.common.by import By
 
-class YoutubeControl(WebpageControl):
+class YoutubeWebpageControl(AbstractWebpageControl):
     webdriver = None
 
     def __init__(self, webdriver) -> None:
