@@ -1,5 +1,7 @@
 # BrowserControl
 
+This is a course project of [Advanced Software Paradigm](https://github.com/ASP2023/BrowserControl)
+
 ## User Guide for GestureRecognizer
 Install [mediapipe](https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer/python):
 ```
