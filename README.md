@@ -43,11 +43,21 @@ def get_command(self):
 to transfer the gesture strings to selenium command.
 
 ## Demo
-
+For guesture recognition demo:
 ```
 python gesture.py
 ```
+For browser control demo:
 
+```
+python test.py
+```
+
+or
+
+```
+python PDFdemo.py
+```
 
 ## Acknowledgement
 
