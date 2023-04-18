@@ -20,6 +20,7 @@ if __name__ == "__main__":
     while (True):
         gesture_recognizer.run()
         command = gesture_recognizer.get_command()
+        gesture_recognizer.clear_gesture_cache()
         # command = input("command:")
         print(command)
         if command == 'quick_scorll_up':

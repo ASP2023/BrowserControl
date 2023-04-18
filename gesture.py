@@ -27,6 +27,9 @@ class GestureRecognizer():
         #            "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"]
         self.gestures = {'dual_hand': None,'hand':None}
 
+    def clear_gesture_cache(self):
+        self.gestures = {'dual_hand': None,'hand':None}
+    
     def get_command(self):
         # gesture is saved by string in one of the following 8 strings: 
         #       ["None", "Closed_Fist", "Open_Palm", "Pointing_Up",
@@ -57,7 +60,8 @@ class GestureRecognizer():
             # if both hands open palm = pause
             if left_gesture == 'Open_Palm' and right_gesture == 'Open_Palm':
                 return 'pause'
-            
+            if left_gesture == 'Thumb_Up' and right_gesture == 'Thumb_Up':
+                return 'play'
             # if both hands pointing up = zoom in
             if left_gesture == 'Pointing_Up' and right_gesture == 'Pointing_Up':
                 return 'zoom_in'
