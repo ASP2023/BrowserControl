@@ -73,12 +73,13 @@ class GestureRecognizer():
             
             return None
 
-    def run(self):
+    def run(self,fps=False):
         """
         1. Capture the frame
         2. Recognize the gesture
         3. Visualize the result
         """
+        start_time = time.time()
         ret, frame = self.cap.read()
         self.h = frame.shape[0]
         self.w = frame.shape[1]
@@ -86,6 +87,7 @@ class GestureRecognizer():
             return
         self.recog_result = self.recognize(frame)
         frame = self.visualize(frame, self.recog_result)
+        cv2.putText(frame, 'FPS: {:.2f}'.format(1/(time.time()-start_time)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.imshow('Gesture Recognizer', frame)
         return
 
@@ -125,15 +127,15 @@ class GestureRecognizer():
                 right_hand_gesture = recog_result.gestures[recog_result.handedness[0][0].index]
             self.gestures['dual_hand'] = [left_hand_gesture[0].category_name, right_hand_gesture[0].category_name]
             self.gestures['hand'] = None
-            cv2.putText(frame, left_hand_gesture[0].category_name, (10, 40),
+            cv2.putText(frame, left_hand_gesture[0].category_name, (10, 100),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-            cv2.putText(frame, right_hand_gesture[0].category_name, (self.w - 240, 40),    
+            cv2.putText(frame, right_hand_gesture[0].category_name, (self.w - 240, 100),    
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         else:
             self.gestures['dual_hand'] = None
             self.gestures['hand'] = recog_result.gestures[0][0].category_name
             hand_gesture = recog_result.gestures[0]
-            cv2.putText(frame, hand_gesture[0].category_name, (10, 60),
+            cv2.putText(frame, hand_gesture[0].category_name, (10, 100),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         # for ges in recog_result.gestures:
         #     ges_name = ges[0].category_name
@@ -182,9 +184,12 @@ class GestureRecognizer():
 
 if __name__ == '__main__':
     gesture_recognizer = GestureRecognizer()
+    start_time = time.time()
+    frame_count = 0
     while True:
-        gesture_recognizer.run()
+        gesture_recognizer.run()            
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+                    
     gestures = gesture_recognizer.gestures
     print(gestures)
