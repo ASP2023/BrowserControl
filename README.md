@@ -1,5 +1,7 @@
 # BrowserControl
 
+This is a course project of [Advanced Software Paradigm](https://github.com/ASP2023/BrowserControl)
+
 ## User Guide for GestureRecognizer
 Install [mediapipe](https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer/python):
 ```
@@ -43,11 +45,21 @@ def get_command(self):
 to transfer the gesture strings to selenium command.
 
 ## Demo
-
+For guesture recognition demo:
 ```
 python gesture.py
 ```
+For browser control demo:
 
+```
+python test.py
+```
+
+or
+
+```
+python PDFdemo.py
+```
 
 ## Acknowledgement
 

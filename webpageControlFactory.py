@@ -3,7 +3,7 @@ from abstractWebpageControl import AbstractWebpageControl
 from genericWebpageControl import GenericWebpageControl
 from youtubeWebpageControl import YoutubeWebpageControl
 
-PATH = "./chromedriver/chromedriver"
+PATH = "../chromedriver/chromedriver"
 
 class WebageControlFactory():
 
