@@ -4,7 +4,7 @@ import time
 from gesture import GestureRecognizer
 import cv2
 
-if __name__ == "__main__":
+def main():
     print("hello")
     # controller = WebpageController("https://www.youtube.com")
     video_page = 'https://www.youtube.com/watch?v=PrOPRJ8K0fU&list=RDPrOPRJ8K0fU&start_radio=1'
@@ -38,3 +38,6 @@ if __name__ == "__main__":
             controller.makeFist()
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
+if __name__ == "__main__":
+    main()
