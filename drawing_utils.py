@@ -189,6 +189,9 @@ def draw_landmarks(
       # Fill color into the circle
       cv2.circle(image, landmark_px, drawing_spec.circle_radius,
                  drawing_spec.color, drawing_spec.thickness)
+      # put on the index
+      cv2.putText(image, str(idx), landmark_px, cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                  WHITE_COLOR, 1, cv2.LINE_AA)
 
 
 def draw_axis(image: np.ndarray,
