@@ -7,7 +7,7 @@ import cv2
 
 if __name__ == "__main__":
     print("hello")
-    PATH = "./chromedriver/chromedriver"
+    PATH = "../chromedriver/chromedriver"
     driver = webdriver.Chrome(PATH)
     # pdf_path = 'docs/gpt-4.pdf'
     # url = pdf_path

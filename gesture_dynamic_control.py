@@ -6,8 +6,26 @@ from mediapipe.tasks.python import vision
 from drawing_utils import draw_landmarks
 import numpy as np
 import pyautogui
+import ot
+import copy
+np.set_printoptions(precision=2)
+# RW_bound is used to measure the change of actions
 
+class hand_gesture_cls:
+    def __init__(self, pts):
+        self.pts = copy.deepcopy(pts)
 
+def RW_distance(xs, xt):
+    '''
+    :param source_pts: input array of the normalized coordiniates of source pts: array([[x,y,z],[x,y,z] ...])
+    :param target_pts: output array of the normalized coordiniates of source pts
+    :return: return the RW distance
+    '''
+    xs = xs - np.mean(xs, axis = 0)
+    xt = xt - np.mean(xt, axis = 0)
+    M = ot.dist(xs, xt, metric = 'sqeuclidean')
+    a, b = np.ones((xs.shape[0],)) / xs.shape[0], np.ones((xt.shape[0],)) / xt.shape[0]  # uniform distribution on samples
+    return ot.emd2(a, b, M)
 class GestureRecognizer:
     def __init__(self) -> None:
         """
@@ -34,26 +52,58 @@ class GestureRecognizer:
         self.time_stamp = time.time()
         self.time_for_click = time.time()
         self.direction_time_stamp = time.time()
+        self.pre_pts = []
+        self.cur_pts = []
+        self.cur_time = time.time()
+        self.pre_time = time.time()
+        self.counter = 0
+        self.storing_action = False
+        self.hand_gesture_collection = []
+        self.RW_bound = 300
+        self.duration_bound = 0.0
+        self.mid_fig_direction = []
+        self.ring_fig_direction = []
+        self.rotation = 0
+        self.rotation_cd = False
+        self.rotation_last_time = 0
 
+        self.pre_idx_fig_tip = []
+        self.cur_idx_fig_tip = []
+
+        self.pre_location = []
+        self.cur_location = []
+        self.vx = 0
+        self.vy = 0
+
+        self.cur_gesture = []
     def clear_gesture_cache(self):
         self.gestures = {"dual_hand": None, "hand": None}
 
     def location_to_direction(
-        self,
+            self,
     ):
         # only one hand to trigger the gesture
         if self.recog_result.hand_landmarks:
-            landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
-            if landmark[:, 0].min() < self.w / 10:
-                return "left"
-            if landmark[:, 0].max() > self.w * 9 / 10:
+            if self.vx >= 5:
                 return "right"
-            if landmark[:, 1].min() < self.h / 10:
-                return "up"
-            if landmark[:, 1].max() > self.h * 9 / 10:
+            if self.vx <= -5:
+                return "left"
+            if self.vy >= 5:
                 return "down"
+            if self.vy <= -5:
+                return "up"
+
+        #    landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
+        #    if landmark[:, 0].min() < self.w / 10:
+        #        return "left"
+        #    if landmark[:, 0].max() > self.w * 9 / 10:
+        #        return "right"
+        #    if landmark[:, 1].min() < self.h / 10:
+        #        return "up"
+        #    if landmark[:, 1].max() > self.h * 9 / 10:
+        #        return "down"
             return None
-        # for hand_lanmark in self.recog_result['hand_landmarks']:
+        #for hand_lanmark in self.recog_result['hand_landmarks']:
 
     def get_command(self):
         # gesture is saved by string in one of the following 8 strings:
@@ -109,8 +159,8 @@ class GestureRecognizer:
         )
         # If one hand and open palm, then reset the mouse position
         if (
-            len(self.recog_result.handedness) == 1
-            and self.recog_result.gestures[0][0].category_name == "Open_Palm"
+                len(self.recog_result.handedness) == 1
+                and self.recog_result.gestures[0][0].category_name == "Open_Palm"
         ):
             screen_width, screen_height = pyautogui.size()
             pyautogui.moveTo(screen_width // 2, screen_height // 2)
@@ -118,8 +168,8 @@ class GestureRecognizer:
             self.start_x = self.freeze_pos[8, 0]
             self.start_y = self.freeze_pos[8, 1]
         elif (
-            len(self.recog_result.handedness) == 1
-            and self.recog_result.gestures[0][0].category_name == "Pointing_Up"
+                len(self.recog_result.handedness) == 1
+                and self.recog_result.gestures[0][0].category_name == "Pointing_Up"
         ):
             if self.freeze == False:
                 self.freeze_pos = self.landmark_cvt_to_numpy(
@@ -131,7 +181,7 @@ class GestureRecognizer:
                 self.freeze = True
             else:
                 # use the index finger tip (食指指头) to locate the mouse
-                
+
                 cur_pos = self.landmark_cvt_to_numpy(
                     self.recog_result.hand_landmarks[0]
                 )
@@ -144,8 +194,8 @@ class GestureRecognizer:
                 )
             # if one hand and closed fist, then start to click mouse, this action takes at most once per 0.5s
         elif (
-            len(self.recog_result.handedness) == 1
-            and self.recog_result.gestures[0][0].category_name == "Closed_Fist"
+                len(self.recog_result.handedness) == 1
+                and self.recog_result.gestures[0][0].category_name == "Closed_Fist"
         ):
             if time.time() - self.time_stamp >= 0.5:
                 pyautogui.click()
@@ -180,7 +230,9 @@ class GestureRecognizer:
             cv2.LINE_AA,
         )
         cv2.imshow("Gesture Recognizer", frame)
-        print(self)
+        self.counter += 1
+        if self.counter % 100 == 0:
+            print(self)
         return
 
     def landmark_cvt_to_numpy(self, landmarks):
@@ -206,21 +258,123 @@ class GestureRecognizer:
         # Draw the recognized gesture on the frame
         if not recog_result.hand_landmarks:
             return frame
-        print(recog_result.handedness)
+        #print(recog_result.handedness)
 
         for landmark_list in recog_result.hand_landmarks:
             draw_landmarks(frame, landmark_list, mp.solutions.hands.HAND_CONNECTIONS)
-
+        # cur_pts stores the current key points positions
+        self.cur_pts = []
+        self.cur_time = time.time()
         for idx, landmark in enumerate(landmark_list):
             if False and ((hasattr(landmark, 'visibility') and
                            landmark.visibility < _VISIBILITY_THRESHOLD) or
                           (hasattr(landmark, 'presence') and
                            landmark.presence < _PRESENCE_THRESHOLD)):
                 continue
+            self.cur_pts.append([landmark.x, landmark.y, landmark.z])
+            if idx == 12:
+                self.cur_location = np.array([landmark.x, landmark.y, landmark.z])
+            if idx == 8:
+                self.cur_idx_fig_tip = np.array([landmark.x, landmark.y, landmark.z])
 
-    #        if idx == 12 :
-    #             print(time.localtime(time.time()))
-    #            print(idx, landmark)
+        # try to see whether it is rotated or not.
+        if not self.rotation_cd:
+            temp_v10 = np.array([landmark_list[10].x, landmark_list[10].y, landmark_list[10].z])
+            temp_v11 = np.array([landmark_list[11].x, landmark_list[11].y, landmark_list[11].z])
+            temp_v14 = np.array([landmark_list[14].x, landmark_list[14].y, landmark_list[14].z])
+            temp_v15 = np.array([landmark_list[15].x, landmark_list[15].y, landmark_list[15].z])
+
+            self.mid_fig_direction = temp_v11 - temp_v10
+            self.ring_fig_direction = temp_v15 -temp_v14
+            def check_rotation(self):
+                if np.inner(self.mid_fig_direction, self.ring_fig_direction) <= 0:
+                    if len(self.pre_location) != 0:
+                        #d_loc = self.cur_location - self.pre_location
+                        #dt = self.cur_time - self.pre_time
+                        #self.vx, self.vy = d_loc[0] / dt, d_loc[1] / dt
+                        # check the mid fig position, if it is greater, then we will right rotation
+                        # otherwise, we will go with right rotation.
+                        #if  self.vx > 2:
+                          #  self.rotation_cd = True
+                           # self.rotation_last_time = self.pre_time
+                           # return "right"
+                        #if  self.vx < -2:
+                          #  self.rotation_cd = True
+                           # self.rotation_last_time = self.pre_time
+                           # return "left"
+                        rotation_diff = np.linalg.norm(self.cur_location- self.pre_idx_fig_tip)
+                        rotation_diff = rotation_diff - np.linalg.norm(self.cur_idx_fig_tip- self.cur_location)
+
+                        dt = self.cur_time - self.pre_time
+                        if rotation_diff/dt < -2:
+                            self.rotation_cd = True
+                            self.rotation_last_time = self.pre_time
+                            return "rotation_left"
+                        if rotation_diff/dt > 2:
+                            self.rotation_cd = True
+                            self.rotation_last_time = self.pre_time
+                            return "rotation_right"
+                return 0
+
+            self.rotation = 0
+            self.rotation = check_rotation(self)
+            print(self.rotation)
+
+
+            #reset the self.rotation_cd based on the current time
+        if self.rotation_cd:
+            # if time is greater than 0.75, then cd released.
+            if self.cur_time - self.rotation_last_time >= 0.75:
+                self.rotation_cd = False
+
+
+
+        RW = 0
+        changing_rate = 0
+        if len(self.pre_pts) != 0:
+            RW = 10000*RW_distance(self.cur_pts, self.pre_pts)
+            changing_rate = RW/(self.cur_time-self.pre_time)
+            print(f"Curtime: {round((self.cur_time-int(self.cur_time/10)*10)*1000)} ++ changing_rate: {changing_rate}")
+        if len(self.pre_location) != 0:
+            d_loc = self.cur_location - self.pre_location
+            dt = self.cur_time-self.pre_time
+            self.vx, self.vy = d_loc[0]/dt, d_loc[1]/dt
+
+
+
+        if changing_rate >= self.RW_bound:
+            # there might be some actions happens, we need to store the infomations
+            if not self.storing_action:
+                self.storing_action = True
+                self.cur_gesture = np.array([])
+                ts = np.ones(len(self.pre_pts))*self.pre_time
+                ts = ts.reshape(-1,1)
+                pts = np.concatenate((self.pre_pts, ts), axis = 1)
+                self.cur_gesture = copy.deepcopy(pts)
+
+            ts = np.ones(len(self.cur_pts)) * self.cur_time
+            ts = ts.reshape(-1, 1)
+            pts = np.concatenate((self.cur_pts, ts), axis=1)
+            self.cur_gesture = np.append(self.cur_gesture , pts, axis = 0)
+
+
+        else:
+            if self.storing_action:
+                new_gesture = hand_gesture_cls(self.cur_gesture)
+                self.hand_gesture_collection.append(new_gesture)
+                self.cur_gesture = []
+                print(f"current_gesture: {len(self.hand_gesture_collection)}")
+                # for idx_ges, ges in enumerate(self.hand_gesture_collection):
+                    # print(f"RW({idx_ges},{len(self.hand_gesture_collection)}) = {RW_distance(self.hand_gesture_collection[idx_ges].pts, self.hand_gesture_collection[-1].pts)}")
+            self.storing_action = False
+
+
+        #update
+        # pre_pts store the last frame's key points positions
+        self.pre_pts = copy.deepcopy(self.cur_pts)
+        self.pre_time = self.cur_time
+        self.pre_location = copy.deepcopy(self.cur_location)
+        self.pre_idx_fig_tip = copy.deepcopy(self.cur_idx_fig_tip)
 
 
         if len(recog_result.handedness) == 2:
@@ -321,8 +475,14 @@ if __name__ == "__main__":
     gesture_recognizer = GestureRecognizer()
     start_time = time.time()
     frame_count = 0
+    fps_limit = 2
+    cv = cv2.VideoCapture(0)
     while True:
-        gesture_recognizer.run()
+        temp = cv.read
+        now_time = time.time()
+        if (int(now_time-start_time)) > fps_limit:
+            gesture_recognizer.run()
+            start_time = now_time
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
     gestures = gesture_recognizer.gestures

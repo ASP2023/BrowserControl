@@ -158,6 +158,8 @@ def draw_landmarks(
       continue
     landmark_px = _normalized_to_pixel_coordinates(landmark.x, landmark.y,
                                                    image_cols, image_rows)
+  #  if idx == 12:
+  #      print(landmark_px)
     if landmark_px:
       idx_to_coordinates[idx] = landmark_px
   if connections:
