@@ -31,6 +31,9 @@ def main():
     while True:
         gesture_recognizer.run()
         command = gesture_recognizer.get_command()
+        controller.volumeDown()
+        # controller.makeFist()
+        print(command)
         gesture_recognizer.clear_gesture_cache()
         # command = input("command:")
         if "w" == command:
@@ -50,6 +53,10 @@ def main():
                 controller.makeFist()
                 start_time = time.time()
             controller.makeFist()
+        elif "playorpause" == command:
+            if time.time() - start_time > 1:
+                controller.makeFist()
+                start_time = time.time()
         elif "x" == command:
             controller.makeFist()
         # Zoom In and Zoom Out: TBD
@@ -57,6 +64,8 @@ def main():
             controller.zoomIn()
         elif "zoom_out" == command:
             controller.zoomOut()
+        elif "reset_zoom" == command:
+            controller.resetZoom()
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 

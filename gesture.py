@@ -36,6 +36,7 @@ class GestureRecognizer:
         self.factor = 2  # the factor to control the speed of mouse movement
         self.time_stamp = time.time()
         self.time_for_click = time.time()
+        self.time_for_play_or_pause = time.time()
         self.direction_time_stamp = time.time()
         self.pre_pts = []
         self.cur_pts = []
@@ -90,19 +91,39 @@ class GestureRecognizer:
         # gesture is saved by string in one of the following 8 strings:
         #       ["None", "Closed_Fist", "Open_Palm", "Pointing_Up",
         #            "Thumb_Down", "Thumb_Up", "Victory", "ILoveYou"]
+        direction = None
         if self.direction is not None:
             # map direction to wsad
             # this mapping works at most once per 0.5 seconds
             if time.time() - self.direction_time_stamp > 0.5:
                 self.direction_time_stamp = time.time()
                 direction_to_wasd = {"left": "a", "right": "d", "up": "w", "down": "s"}
-                return direction_to_wasd[self.direction]
+                direction = direction_to_wasd[self.direction]
+        # if single hand, control pause or play
         if self.gestures["hand"]:
-            return None
-        elif self.gestures["dual_hand"]:
+            gesture = self.gestures["hand"]
+            if gesture == 'ILoveYou':
+                return 'playorpause'
+            
+        if self.gestures["dual_hand"]:
             left_gesture = self.gestures["dual_hand"][0]
             right_gesture = self.gestures["dual_hand"][1]
-
+            # if both hands open_palm, then zoom in
+            if left_gesture == 'Open_Palm' and right_gesture == 'Open_Palm':
+                return 'zoom_in'
+            # if both hands closed_fist, then zoom out
+            if left_gesture == 'Closed_Fist' and right_gesture == 'Closed_Fist':
+                return 'zoom_out'
+            # if both hands thumb up, then reset zoom
+            if left_gesture == 'Thumb_Up' and right_gesture == 'Thumb_Up':
+                return 'reset_zoom'
+            # if left hand closed fist and direction is right, then playorpause
+            if time.time() - self.time_for_play_or_pause > 0.5:
+                self.time_for_play_or_pause = time.time()
+                if left_gesture == 'Closed_Fist' and direction == 'd':
+                    return 'playorpause'
+            
+            
     def take_over_mouse(self, frame):
         # if one hand and closed fist, then start to take over mouse control
         cv2.putText(
@@ -213,7 +234,7 @@ class GestureRecognizer:
             cv2.LINE_AA,
         )
         cv2.imshow("Gesture Recognizer", frame)
-        print(self)
+        # print(self)
         return
 
     def landmark_cvt_to_numpy(self, landmarks):
@@ -239,7 +260,7 @@ class GestureRecognizer:
         # Draw the recognized gesture on the frame
         if not recog_result.hand_landmarks:
             return frame
-        print(recog_result.handedness)
+        # print(recog_result.handedness)
 
         for landmark_list in recog_result.hand_landmarks:
             draw_landmarks(frame, landmark_list, mp.solutions.hands.HAND_CONNECTIONS)

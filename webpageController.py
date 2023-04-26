@@ -38,3 +38,12 @@ class WebpageController():
     
     def zoomOut(self):
         self.webpageControl.zoomOut()
+    
+    def resetZoom(self):
+        self.webpageControl.resetZoom()
+        
+    def volumeUp(self):
+        self.webpageControl.volumeUp()
+    
+    def volumeDown(self):
+        self.webpageControl.volumeDown()

@@ -7,6 +7,7 @@ class YoutubeWebpageControl(AbstractWebpageControl):
     def __init__(self, webdriver) -> None:
         self.webdriver = webdriver
         self.zoom = 100
+        self.volume = 0
         
     def scrollUp(self):
         self.webdriver.execute_script("window.scrollBy(0,-500)")
@@ -53,3 +54,15 @@ class YoutubeWebpageControl(AbstractWebpageControl):
             return
         self.zoom -= 20
         self.webdriver.execute_script("document.body.style.zoom='{}%'".format(self.zoom))
+    
+    def resetZoom(self):
+        self.zoom = 100
+        self.webdriver.execute_script("document.body.style.zoom='{}%'".format(self.zoom))
+    
+    def volumeUp(self):
+        self.volume = min(self.volume+20,100)
+        self.webdriver.execute_script(f"document.getElementsByTagName('video')[0].volume = {self.volume / 100};")
+    
+    def volumeDown(self):
+        self.volume = max(self.volume-20,0)
+        self.webdriver.execute_script(f"document.getElementsByTagName('video')[0].volume = {self.volume / 100};")
