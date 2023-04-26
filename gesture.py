@@ -7,8 +7,8 @@ from drawing_utils import draw_landmarks
 import numpy as np
 import pyautogui
 import copy
-np.set_printoptions(precision=2)
 
+np.set_printoptions(precision=2)
 
 
 class GestureRecognizer:
@@ -76,15 +76,15 @@ class GestureRecognizer:
         if self.recog_result.hand_landmarks:
             landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
             if landmark[:, 0].min() < self.w / 10:
-               return "left"
+                return "left"
             if landmark[:, 0].max() > self.w * 9 / 10:
-               return "right"
+                return "right"
             if landmark[:, 1].min() < self.h / 10:
-               return "up"
+                return "up"
             if landmark[:, 1].max() > self.h * 9 / 10:
-               return "down"
+                return "down"
             return None
-        #for hand_lanmark in self.recog_result['hand_landmarks']:
+        # for hand_lanmark in self.recog_result['hand_landmarks']:
 
     def get_command(self):
         # gesture is saved by string in one of the following 8 strings:
@@ -145,7 +145,9 @@ class GestureRecognizer:
         ):
             screen_width, screen_height = pyautogui.size()
             pyautogui.moveTo(screen_width // 2, screen_height // 2)
-            self.freeze_pos = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
+            self.freeze_pos = self.landmark_cvt_to_numpy(
+                self.recog_result.hand_landmarks[0]
+            )
             self.start_x = self.freeze_pos[8, 0]
             self.start_y = self.freeze_pos[8, 1]
         elif (
@@ -162,7 +164,7 @@ class GestureRecognizer:
                 self.freeze = True
             else:
                 # use the index finger tip (食指指头) to locate the mouse
-                
+
                 cur_pos = self.landmark_cvt_to_numpy(
                     self.recog_result.hand_landmarks[0]
                 )
@@ -241,15 +243,23 @@ class GestureRecognizer:
 
         for landmark_list in recog_result.hand_landmarks:
             draw_landmarks(frame, landmark_list, mp.solutions.hands.HAND_CONNECTIONS)
-
+        for handedness in recog_result.handedness:
+            if handedness[0].category_name == 'right':
+                landmark_list = recog_result.hand_landmarks[handedness.index]
         # cur_pts stores the current key points positions
         self.cur_pts = []
         self.cur_time = time.time()
         for idx, landmark in enumerate(landmark_list):
-            if False and ((hasattr(landmark, 'visibility') and
-                           landmark.visibility < _VISIBILITY_THRESHOLD) or
-                          (hasattr(landmark, 'presence') and
-                           landmark.presence < _PRESENCE_THRESHOLD)):
+            if False and (
+                (
+                    hasattr(landmark, "visibility")
+                    and landmark.visibility < _VISIBILITY_THRESHOLD
+                )
+                or (
+                    hasattr(landmark, "presence")
+                    and landmark.presence < _PRESENCE_THRESHOLD
+                )
+            ):
                 continue
             self.cur_pts.append([landmark.x, landmark.y, landmark.z])
             if idx == 12:
@@ -259,14 +269,13 @@ class GestureRecognizer:
 
         if len(self.pre_location) != 0:
             d_loc = self.cur_location - self.pre_location
-            dt = self.cur_time-self.pre_time
-            self.vx, self.vy = d_loc[0]/dt, d_loc[1]/dt
+            dt = self.cur_time - self.pre_time
+            self.vx, self.vy = d_loc[0] / dt, d_loc[1] / dt
 
-        #update
+        # update
         self.pre_time = self.cur_time
         self.pre_location = copy.deepcopy(self.cur_location)
         self.pre_idx_fig_tip = copy.deepcopy(self.cur_idx_fig_tip)
-
 
         if len(recog_result.handedness) == 2:
             # if two hands are detected
