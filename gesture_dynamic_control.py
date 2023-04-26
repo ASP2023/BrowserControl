@@ -327,42 +327,10 @@ class GestureRecognizer:
             if self.cur_time - self.rotation_last_time >= 0.75:
                 self.rotation_cd = False
 
-
-
-
         if len(self.pre_location) != 0:
             d_loc = self.cur_location - self.pre_location
             dt = self.cur_time-self.pre_time
             self.vx, self.vy = d_loc[0]/dt, d_loc[1]/dt
-
-
-
-        if changing_rate >= self.RW_bound:
-            # there might be some actions happens, we need to store the infomations
-            if not self.storing_action:
-                self.storing_action = True
-                self.cur_gesture = np.array([])
-                ts = np.ones(len(self.pre_pts))*self.pre_time
-                ts = ts.reshape(-1,1)
-                pts = np.concatenate((self.pre_pts, ts), axis = 1)
-                self.cur_gesture = copy.deepcopy(pts)
-
-            ts = np.ones(len(self.cur_pts)) * self.cur_time
-            ts = ts.reshape(-1, 1)
-            pts = np.concatenate((self.cur_pts, ts), axis=1)
-            self.cur_gesture = np.append(self.cur_gesture , pts, axis = 0)
-
-
-        else:
-            if self.storing_action:
-                new_gesture = hand_gesture_cls(self.cur_gesture)
-                self.hand_gesture_collection.append(new_gesture)
-                self.cur_gesture = []
-                print(f"current_gesture: {len(self.hand_gesture_collection)}")
-                # for idx_ges, ges in enumerate(self.hand_gesture_collection):
-                    # print(f"RW({idx_ges},{len(self.hand_gesture_collection)}) = {RW_distance(self.hand_gesture_collection[idx_ges].pts, self.hand_gesture_collection[-1].pts)}")
-            self.storing_action = False
-
 
         #update
         # pre_pts store the last frame's key points positions
