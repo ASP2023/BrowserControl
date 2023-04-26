@@ -6,6 +6,9 @@ from mediapipe.tasks.python import vision
 from drawing_utils import draw_landmarks
 import numpy as np
 import pyautogui
+import copy
+np.set_printoptions(precision=2)
+
 
 
 class GestureRecognizer:
@@ -34,6 +37,25 @@ class GestureRecognizer:
         self.time_stamp = time.time()
         self.time_for_click = time.time()
         self.direction_time_stamp = time.time()
+        self.pre_pts = []
+        self.cur_pts = []
+        self.cur_time = time.time()
+        self.pre_time = time.time()
+        self.counter = 0
+        self.duration_bound = 0.0
+        self.mid_fig_direction = []
+        self.ring_fig_direction = []
+        self.rotation = 0
+        self.rotation_cd = False
+        self.rotation_last_time = 0
+
+        self.pre_idx_fig_tip = []
+        self.cur_idx_fig_tip = []
+
+        self.pre_location = []
+        self.cur_location = []
+        self.vx = 0
+        self.vy = 0
 
     def clear_gesture_cache(self):
         self.gestures = {"dual_hand": None, "hand": None}
@@ -43,17 +65,26 @@ class GestureRecognizer:
     ):
         # only one hand to trigger the gesture
         if self.recog_result.hand_landmarks:
-            landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
-            if landmark[:, 0].min() < self.w / 10:
-                return "left"
-            if landmark[:, 0].max() > self.w * 9 / 10:
+            if self.vx >= 5:
                 return "right"
-            if landmark[:, 1].min() < self.h / 10:
-                return "up"
-            if landmark[:, 1].max() > self.h * 9 / 10:
+            if self.vx <= -5:
+                return "left"
+            if self.vy >= 5:
                 return "down"
+            if self.vy <= -5:
+                return "up"
+
+        #    landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
+        #    if landmark[:, 0].min() < self.w / 10:
+        #        return "left"
+        #    if landmark[:, 0].max() > self.w * 9 / 10:
+        #        return "right"
+        #    if landmark[:, 1].min() < self.h / 10:
+        #        return "up"
+        #    if landmark[:, 1].max() > self.h * 9 / 10:
+        #        return "down"
             return None
-        # for hand_lanmark in self.recog_result['hand_landmarks']:
+        #for hand_lanmark in self.recog_result['hand_landmarks']:
 
     def get_command(self):
         # gesture is saved by string in one of the following 8 strings:
@@ -211,16 +242,30 @@ class GestureRecognizer:
         for landmark_list in recog_result.hand_landmarks:
             draw_landmarks(frame, landmark_list, mp.solutions.hands.HAND_CONNECTIONS)
 
+        # cur_pts stores the current key points positions
+        self.cur_pts = []
+        self.cur_time = time.time()
         for idx, landmark in enumerate(landmark_list):
             if False and ((hasattr(landmark, 'visibility') and
                            landmark.visibility < _VISIBILITY_THRESHOLD) or
                           (hasattr(landmark, 'presence') and
                            landmark.presence < _PRESENCE_THRESHOLD)):
                 continue
+            self.cur_pts.append([landmark.x, landmark.y, landmark.z])
+            if idx == 12:
+                self.cur_location = np.array([landmark.x, landmark.y, landmark.z])
+            if idx == 8:
+                self.cur_idx_fig_tip = np.array([landmark.x, landmark.y, landmark.z])
 
-    #        if idx == 12 :
-    #             print(time.localtime(time.time()))
-    #            print(idx, landmark)
+        if len(self.pre_location) != 0:
+            d_loc = self.cur_location - self.pre_location
+            dt = self.cur_time-self.pre_time
+            self.vx, self.vy = d_loc[0]/dt, d_loc[1]/dt
+
+        #update
+        self.pre_time = self.cur_time
+        self.pre_location = copy.deepcopy(self.cur_location)
+        self.pre_idx_fig_tip = copy.deepcopy(self.cur_idx_fig_tip)
 
 
         if len(recog_result.handedness) == 2:

@@ -329,12 +329,7 @@ class GestureRecognizer:
 
 
 
-        RW = 0
-        changing_rate = 0
-        if len(self.pre_pts) != 0:
-            RW = 10000*RW_distance(self.cur_pts, self.pre_pts)
-            changing_rate = RW/(self.cur_time-self.pre_time)
-            print(f"Curtime: {round((self.cur_time-int(self.cur_time/10)*10)*1000)} ++ changing_rate: {changing_rate}")
+
         if len(self.pre_location) != 0:
             d_loc = self.cur_location - self.pre_location
             dt = self.cur_time-self.pre_time
