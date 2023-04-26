@@ -6,7 +6,8 @@ class YoutubeWebpageControl(AbstractWebpageControl):
 
     def __init__(self, webdriver) -> None:
         self.webdriver = webdriver
-
+        self.zoom = 100
+        
     def scrollUp(self):
         self.webdriver.execute_script("window.scrollBy(0,-500)")
 
@@ -41,7 +42,14 @@ class YoutubeWebpageControl(AbstractWebpageControl):
             print("playButton not found")
             
     def zoomIn(self):
-        self.webdriver.execute_script("document.body.style.zoom='150%'")
-    
+        # increase zoom by 20%
+        if self.zoom >= 200:
+            return
+        self.zoom += 20
+        self.webdriver.execute_script("document.body.style.zoom='{}%'".format(self.zoom))
+
     def zoomOut(self):
-        self.webdriver.execute_script("document.body.style.zoom='100%'")
+        if self.zoom <= 20:
+            return
+        self.zoom -= 20
+        self.webdriver.execute_script("document.body.style.zoom='{}%'".format(self.zoom))

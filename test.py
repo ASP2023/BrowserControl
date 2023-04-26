@@ -52,6 +52,11 @@ def main():
             controller.makeFist()
         elif "x" == command:
             controller.makeFist()
+        # Zoom In and Zoom Out: TBD
+        elif "zoom_in" == command:
+            controller.zoomIn()
+        elif "zoom_out" == command:
+            controller.zoomOut()
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
