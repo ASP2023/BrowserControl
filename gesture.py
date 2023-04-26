@@ -74,17 +74,18 @@ class GestureRecognizer:
                 return "down"
             if self.vy <= -5:
                 return "up"
-        if self.recog_result.hand_landmarks:
-            landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
-            if landmark[:, 0].min() < self.w / 10:
-                return "left"
-            if landmark[:, 0].max() > self.w * 9 / 10:
-                return "right"
-            if landmark[:, 1].min() < self.h / 10:
-                return "up"
-            if landmark[:, 1].max() > self.h * 9 / 10:
-                return "down"
-            return None
+        if self.recog_result.hand_landmarks and self.gestures['dual_hand'] is not None:
+            for i in range(len(self.recog_result.hand_landmarks)):
+                landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[i])
+                if landmark[:, 0].min() < self.w / 10:
+                    return "left"
+                if landmark[:, 0].max() > self.w * 9 / 10:
+                    return "right"
+                if landmark[:, 1].min() < self.h / 10:
+                    return "up"
+                if landmark[:, 1].max() > self.h * 9 / 10:
+                    return "down"
+        return None
         # for hand_lanmark in self.recog_result['hand_landmarks']:
 
     def get_command(self):
@@ -120,9 +121,10 @@ class GestureRecognizer:
             # if left hand closed fist and direction is right, then playorpause
             if time.time() - self.time_for_play_or_pause > 0.5:
                 self.time_for_play_or_pause = time.time()
-                if left_gesture == 'Closed_Fist' and direction == 'd':
+                if left_gesture == 'Victory' and direction == 'd':
                     return 'playorpause'
-            
+        if direction is not None:
+            return direction
             
     def take_over_mouse(self, frame):
         # if one hand and closed fist, then start to take over mouse control
@@ -233,7 +235,7 @@ class GestureRecognizer:
             2,
             cv2.LINE_AA,
         )
-        cv2.imshow("Gesture Recognizer", frame)
+        cv2.imshow("Gesture Recognizer", cv2.resize(frame, (self.w//4, self.h//4)))
         # print(self)
         return
 

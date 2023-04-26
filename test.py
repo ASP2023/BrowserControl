@@ -21,7 +21,7 @@ def main():
     print("hello")
     gesture_recognizer = GestureRecognizer()
     # initilize camera first
-    gesture_recognizer.run()
+    gesture_recognizer.run()    
     # controller = WebpageController("https://www.youtube.com")
     video_page = (
         "https://www.youtube.com/watch?v=PrOPRJ8K0fU&list=RDPrOPRJ8K0fU&start_radio=1"
@@ -31,7 +31,7 @@ def main():
     while True:
         gesture_recognizer.run()
         command = gesture_recognizer.get_command()
-        controller.volumeDown()
+        # controller.volumeDown()
         # controller.makeFist()
         print(command)
         gesture_recognizer.clear_gesture_cache()
@@ -41,9 +41,11 @@ def main():
         elif "s" == command:
             controller.palmMoveUp()
         elif "a" == command:
-            controller.palmMoveRight()
+            continue
+            # controller.palmMoveRight()
         elif "d" == command:
-            controller.palmMoveLeft()
+            continue
+            # controller.palmMoveLeft()
         elif "pause" == command:
             if time.time() - start_time > 1:
                 controller.makeFist()
@@ -52,7 +54,6 @@ def main():
             if time.time() - start_time > 1:
                 controller.makeFist()
                 start_time = time.time()
-            controller.makeFist()
         elif "playorpause" == command:
             if time.time() - start_time > 1:
                 controller.makeFist()
