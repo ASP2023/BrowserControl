@@ -32,3 +32,9 @@ class WebpageController():
 
     def makeFist(self):
         self.webpageControl.playOrPause()
+
+    def zoomIn(self):
+        self.webpageControl.zoomIn()
+    
+    def zoomOut(self):
+        self.webpageControl.zoomOut()

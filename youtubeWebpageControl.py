@@ -39,3 +39,9 @@ class YoutubeWebpageControl(AbstractWebpageControl):
             playButton.click()
         except:
             print("playButton not found")
+            
+    def zoomIn(self):
+        self.webdriver.execute_script("document.body.style.zoom='150%'")
+    
+    def zoomOut(self):
+        self.webdriver.execute_script("document.body.style.zoom='100%'")
