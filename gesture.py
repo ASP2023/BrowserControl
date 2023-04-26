@@ -74,15 +74,15 @@ class GestureRecognizer:
             if self.vy <= -5:
                 return "up"
 
-        #    landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
-        #    if landmark[:, 0].min() < self.w / 10:
-        #        return "left"
-        #    if landmark[:, 0].max() > self.w * 9 / 10:
-        #        return "right"
-        #    if landmark[:, 1].min() < self.h / 10:
-        #        return "up"
-        #    if landmark[:, 1].max() > self.h * 9 / 10:
-        #        return "down"
+        landmark = self.landmark_cvt_to_numpy(self.recog_result.hand_landmarks[0])
+        if landmark[:, 0].min() < self.w / 10:
+            return "left"
+        if landmark[:, 0].max() > self.w * 9 / 10:
+            return "right"
+        if landmark[:, 1].min() < self.h / 10:
+            return "up"
+        if landmark[:, 1].max() > self.h * 9 / 10:
+            return "down"
             return None
         #for hand_lanmark in self.recog_result['hand_landmarks']:
 
