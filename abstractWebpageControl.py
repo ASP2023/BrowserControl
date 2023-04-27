@@ -29,3 +29,14 @@ class AbstractWebpageControl(ABC):
     @abstractmethod
     def playOrPause(self):
         pass
+
+
+
+def bfs():
+    q = []
+    ans = 0
+    while q:
+        now = q.pop(0)
+        ans += len(q)
+        xxxx
+    return ans 
