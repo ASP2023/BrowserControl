@@ -9,7 +9,6 @@ import pyautogui
 
 # def move_and_resize_window(title, x, y, width, height):
 #     try:
-#         # FUck this function in the library only support on Windows
 #         window = gw.getWindowsWithTitle(title)[0]
 #         window.moveTo(x, y)
 #         window.resizeTo(width, height)
